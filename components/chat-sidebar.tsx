@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sidebar,
   SidebarContent,
@@ -57,23 +58,25 @@ export function ChatSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-4">
-        <div className="space-y-1">
-          <div className="text-xs font-medium text-muted-foreground px-2 py-1">
-            Today
+        <ScrollArea className="flex-1 h-0">
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground px-2 py-1">
+              Today
+            </div>
+            {chatThreads
+              .filter((thread) => thread.isToday)
+              .map((thread) => (
+                <SidebarMenu key={thread.id}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton className="w-full justify-start text-left hover:bg-sidebar-accent rounded-lg">
+                      <MessageSquare className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <span className="truncate text-sm">{thread.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              ))}
           </div>
-          {chatThreads
-            .filter((thread) => thread.isToday)
-            .map((thread) => (
-              <SidebarMenu key={thread.id}>
-                <SidebarMenuItem>
-                  <SidebarMenuButton className="w-full justify-start text-left hover:bg-sidebar-accent rounded-lg">
-                    <MessageSquare className="w-4 h-4 mr-2 text-muted-foreground" />
-                    <span className="truncate text-sm">{thread.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            ))}
-        </div>
+        </ScrollArea>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">

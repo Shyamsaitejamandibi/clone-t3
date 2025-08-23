@@ -1,109 +1,156 @@
 "use client";
 
-import React from "react";
-import {
-  Send,
-  Paperclip,
-  Sparkles,
-  Globe,
-  Code,
-  BookOpen,
-  ChevronDown,
-  Search,
-  Info,
-  ArrowUp,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import { useState } from "react";
+import { motion } from "motion/react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChatInput } from "@/components/chat-input";
+
+interface ChatMessage {
+  id: string;
+  content: string;
+  role: "user" | "assistant";
+}
+
+const dummyMessages: ChatMessage[] = [
+  { id: "1", content: "Hello!", role: "user" },
+  {
+    id: "2",
+    content: "Hi there! How can I help you today?",
+    role: "assistant",
+  },
+  {
+    id: "3",
+    content:
+      "I'm working on a React project and need help with state management.",
+    role: "user",
+  },
+  {
+    id: "4",
+    content:
+      "Great! React has several options for state management. For simple local state, useState is perfect. For more complex state, you might consider useReducer, Context API, or external libraries like Redux or Zustand. What specific challenges are you facing?",
+    role: "assistant",
+  },
+  {
+    id: "5",
+    content:
+      "I have a form with multiple inputs and I'm not sure how to handle validation.",
+    role: "user",
+  },
+  {
+    id: "6",
+    content:
+      "Form validation can be handled in several ways. You could use controlled components with useState, implement custom validation functions, or use libraries like React Hook Form or Formik. Here's a simple example with useState and validation:",
+    role: "assistant",
+  },
+  {
+    id: "7",
+    content:
+      "That's helpful! Can you show me how to implement real-time validation?",
+    role: "user",
+  },
+  {
+    id: "8",
+    content:
+      "Absolutely! Real-time validation can be implemented using onChange events. You can validate on every keystroke or use debouncing to improve performance. Would you like me to show you both approaches?",
+    role: "assistant",
+  },
+  {
+    id: "9",
+    content: "Yes, please show me the debounced approach.",
+    role: "user",
+  },
+  {
+    id: "10",
+    content:
+      "Here's how you can implement debounced validation using useEffect and a custom hook. This approach waits for the user to stop typing before running validation, which is more efficient for expensive operations.",
+    role: "assistant",
+  },
+  {
+    id: "11",
+    content:
+      "This is exactly what I needed! How do I handle async validation like checking if an email already exists?",
+    role: "user",
+  },
+  {
+    id: "12",
+    content:
+      "For async validation, you'll want to use useEffect with async functions and handle loading states. You can also implement abort controllers to cancel previous requests when the input changes. Here's a pattern that works well for email validation.",
+    role: "assistant",
+  },
+  {
+    id: "13",
+    content:
+      "Perfect! One more question - how do I display validation errors in a user-friendly way?",
+    role: "user",
+  },
+  {
+    id: "14",
+    content:
+      "Great question! For user-friendly error display, consider: 1) Show errors near the relevant input field, 2) Use clear, actionable language, 3) Display errors after the user has interacted with the field, 4) Use visual cues like color and icons, 5) Provide suggestions for fixing errors when possible.",
+    role: "assistant",
+  },
+  {
+    id: "15",
+    content: "Thank you so much! This has been incredibly helpful.",
+    role: "user",
+  },
+  {
+    id: "16",
+    content:
+      "You're very welcome! I'm glad I could help you with form validation in React. Feel free to ask if you have any more questions about React, TypeScript, or web development in general. Good luck with your project!",
+    role: "assistant",
+  },
+];
 
 export function ChatMain() {
-  const [message, setMessage] = React.useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>(dummyMessages);
+  const id = "";
+
+  const handleSendMessage = (message: string) => {
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      content: message,
+      role: "user",
+    };
+    setMessages((prev) => [...prev, newMessage]);
+  };
+
   return (
-    <div className="flex-1 flex flex-col bg-background">
-      {/* Main content area */}
+    <div className="flex flex-col h-full">
+      <ScrollArea className="flex-1 h-0">
+        <div className="p-16">
+          <div className="max-w-3xl mx-auto space-y-6">
+            {messages.length === 0 && (
+              <div className="text-center text-muted-foreground">
+                Start a conversation
+              </div>
+            )}
 
-      {/* Bottom input area */}
-      <div className="w-full max-w-3xl mx-auto -my-4 px-0">
-        {/* Chat Input Container */}
-        <div className=" border rounded-lg p-4 flex flex-col gap-2">
-          {/* Message Input and Send Button Row */}
-          <div className="flex items-center gap-2 w-full">
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your message here..."
-              className="flex-1 !bg-transparent border-none text-slate-300 placeholder:text-slate-500 text-base h-auto pb-5 px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-
-          {/* Controls Row */}
-          <div className="flex items-center justify-between w-full min-w-0">
-            <div className="flex items-center gap-1 min-w-0 flex-1">
-              {/* Model Selector */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-slate-300 hover:text-white hover:bg-slate-700 p-1 h-auto font-normal text-sm whitespace-nowrap"
-                  >
-                    GPT-5 mini
-                    <ChevronDown className="ml-1 h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                  <DropdownMenuItem className="text-slate-300 hover:bg-slate-700">
-                    GPT-5 mini
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-slate-300 hover:bg-slate-700">
-                    GPT-4
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Low Button */}
-              <Button
-                variant="ghost"
-                className="text-slate-300 hover:text-white hover:bg-slate-700 p-1 h-auto font-normal text-sm whitespace-nowrap"
+            {messages.map((message, index) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                <Info className="mr-1 h-3 w-3" />
-                Low
-              </Button>
-
-              {/* Search Button */}
-              <Button
-                variant="ghost"
-                className="text-slate-300 hover:text-white hover:bg-slate-700 p-1 h-auto font-normal text-sm whitespace-nowrap"
-              >
-                <Search className="mr-1 h-3 w-3" />
-                Search
-              </Button>
-
-              {/* Attachment Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-slate-300 hover:text-white hover:bg-slate-700 h-8 w-8 flex-shrink-0"
-              >
-                <Paperclip className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <Button
-              size="icon"
-              className="bg-purple-600 hover:bg-purple-700 h-10 w-10 rounded-md flex-shrink-0 ml-2"
-            >
-              <ArrowUp className="h-5 w-5" />
-            </Button>
+                <div
+                  className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                    message.role === "user"
+                      ? "bg-card text-primary-foreground ml-12"
+                      : "bg-muted mr-12"
+                  }`}
+                >
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </ScrollArea>
+
+      <ChatInput onSendMessage={handleSendMessage} />
     </div>
   );
 }
