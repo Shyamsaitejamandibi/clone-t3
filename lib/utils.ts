@@ -12,3 +12,6 @@ export function generateUUID(): string {
     return v.toString(16);
   });
 }
+export function sanitizeText(text: string) {
+  return text.replace("<has_function_call>", "");
+}
