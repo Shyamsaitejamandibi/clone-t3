@@ -1,156 +1,106 @@
 "use client";
 
 import React from "react";
-import { Send, Paperclip, Sparkles, Globe, Code, BookOpen } from "lucide-react";
+import {
+  Send,
+  Paperclip,
+  Sparkles,
+  Globe,
+  Code,
+  BookOpen,
+  ChevronDown,
+  Search,
+  Info,
+  ArrowUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-
-const suggestedPrompts = [
-  {
-    icon: Sparkles,
-    text: "How does AI work?",
-    category: "create",
-  },
-  {
-    icon: Globe,
-    text: "Are black holes real?",
-    category: "explore",
-  },
-  {
-    icon: Code,
-    text: 'How many Rs are in the word "strawberry"?',
-    category: "code",
-  },
-  {
-    icon: BookOpen,
-    text: "What is the meaning of life?",
-    category: "learn",
-  },
-];
-
-const categories = [
-  { name: "Create", icon: Sparkles },
-  { name: "Explore", icon: Globe },
-  { name: "Code", icon: Code },
-  { name: "Learn", icon: BookOpen },
-];
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 export function ChatMain() {
+  const [message, setMessage] = React.useState("");
   return (
-    <div className="flex-1 flex flex-col h-screen bg-background">
+    <div className="flex-1 flex flex-col bg-background">
       {/* Main content area */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-4xl mx-auto w-full">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            How can I help you, Shyam?
-          </h1>
-        </div>
-
-        {/* Category buttons */}
-        <div className="flex gap-4 mb-8">
-          {categories.map((category) => {
-            const Icon = category.icon;
-            return (
-              <Button
-                key={category.name}
-                variant="outline"
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-card hover:bg-accent border-border"
-              >
-                <Icon className="w-4 h-4" />
-                {category.name}
-              </Button>
-            );
-          })}
-        </div>
-
-        {/* Suggested prompts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl mb-8">
-          {suggestedPrompts.map((prompt, index) => {
-            const Icon = prompt.icon;
-            return (
-              <button
-                key={index}
-                className="p-4 text-left rounded-xl border border-border bg-card hover:bg-accent transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <Icon className="w-5 h-5 mt-0.5 text-muted-foreground" />
-                  <span className="text-foreground">{prompt.text}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Bottom input area */}
-      <div className="border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-4xl mx-auto p-4">
-          <div className="relative">
-            <div className="flex items-end gap-2 p-3 rounded-2xl border border-border bg-card">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              >
-                <Paperclip className="w-4 h-4" />
-              </Button>
-
-              <div className="flex-1">
-                <Input
-                  placeholder="Type your message here..."
-                  className="border-0 bg-transparent p-0 text-base placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-
-              <Button
-                size="icon"
-                className="h-8 w-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
+      <div className="w-full max-w-3xl mx-auto -my-4 px-0">
+        {/* Chat Input Container */}
+        <div className=" border rounded-lg p-4 flex flex-col gap-2">
+          {/* Message Input and Send Button Row */}
+          <div className="flex items-center gap-2 w-full">
+            <Input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message here..."
+              className="flex-1 !bg-transparent border-none text-slate-300 placeholder:text-slate-500 text-base h-auto pb-5 px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
           </div>
 
-          {/* Bottom info bar */}
-          <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="text-xs">
-                GPT-5 mini
-              </Badge>
-              <span className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+          {/* Controls Row */}
+          <div className="flex items-center justify-between w-full min-w-0">
+            <div className="flex items-center gap-1 min-w-0 flex-1">
+              {/* Model Selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-slate-300 hover:text-white hover:bg-slate-700 p-1 h-auto font-normal text-sm whitespace-nowrap"
+                  >
+                    GPT-5 mini
+                    <ChevronDown className="ml-1 h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-slate-800 border-slate-700">
+                  <DropdownMenuItem className="text-slate-300 hover:bg-slate-700">
+                    GPT-5 mini
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-slate-300 hover:bg-slate-700">
+                    GPT-4
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Low Button */}
+              <Button
+                variant="ghost"
+                className="text-slate-300 hover:text-white hover:bg-slate-700 p-1 h-auto font-normal text-sm whitespace-nowrap"
+              >
+                <Info className="mr-1 h-3 w-3" />
                 Low
-              </span>
-              <span className="flex items-center gap-1">
-                <Globe className="w-3 h-3" />
+              </Button>
+
+              {/* Search Button */}
+              <Button
+                variant="ghost"
+                className="text-slate-300 hover:text-white hover:bg-slate-700 p-1 h-auto font-normal text-sm whitespace-nowrap"
+              >
+                <Search className="mr-1 h-3 w-3" />
                 Search
-              </span>
-              <Button variant="ghost" size="sm" className="h-auto p-0 text-xs">
-                <Paperclip className="w-3 h-3" />
+              </Button>
+
+              {/* Attachment Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-slate-300 hover:text-white hover:bg-slate-700 h-8 w-8 flex-shrink-0"
+              >
+                <Paperclip className="h-4 w-4" />
               </Button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 text-xs rounded-full"
-              >
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                  <span className="text-white text-xs">✓</span>
-                </div>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 text-xs rounded-full"
-              >
-                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                  <span className="text-white text-xs">C</span>
-                </div>
-              </Button>
-            </div>
+            <Button
+              size="icon"
+              className="bg-purple-600 hover:bg-purple-700 h-10 w-10 rounded-md flex-shrink-0 ml-2"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>

@@ -13,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { UserButton } from "@clerk/nextjs";
 
 const chatThreads = [
   {
@@ -76,20 +77,7 @@ export function ChatSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-8 h-8">
-            <AvatarImage src="" />
-            <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
-              SM
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">
-              Shyam Sai Teja Mandi...
-            </p>
-            <p className="text-xs text-muted-foreground">Free</p>
-          </div>
-        </div>
+        <UserButton showName />
       </SidebarFooter>
     </Sidebar>
   );
