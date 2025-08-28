@@ -1,10 +1,10 @@
 import { ChatLayout } from "@/components/chat-layout";
 import { cookies } from "next/headers";
 import { generateUUID } from "@/lib/utils";
-import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SignInButton } from "@clerk/nextjs";
+import { DEFAULT_MODEL } from "@/lib/ai/models";
 
 export default async function Home() {
   const session = await auth();
@@ -21,12 +21,18 @@ export default async function Home() {
 
   const cookieStore = await cookies();
   const isActive = cookieStore.get("sidebar_state")?.value === "true";
-  const modelIdFromCookie = cookieStore.get("chat-model");
+  const modelIdFromCookie =
+    cookieStore.get("chat-model")?.value || DEFAULT_MODEL;
 
   return (
     <>
       <SidebarProvider defaultOpen={isActive}>
-        <ChatLayout />
+        <ChatLayout
+          key={id}
+          id={id}
+          initialMessages={[]}
+          initialChatModel={modelIdFromCookie}
+        />
       </SidebarProvider>
     </>
   );

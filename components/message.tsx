@@ -8,7 +8,6 @@ import { Markdown } from "./markdown";
 import equal from "fast-deep-equal";
 import { cn, sanitizeText } from "@/lib/utils";
 // import { MessageReasoning } from "./message-reasoning";
-import type { UseChatHelpers } from "@ai-sdk/react";
 import type { ChatMessage } from "@/lib/types";
 import { useDataStream } from "./data-stream-provider";
 import { SparklesIcon } from "lucide-react";
