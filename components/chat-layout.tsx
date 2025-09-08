@@ -1,7 +1,7 @@
 import { ChatSidebar } from "@/components/chat-sidebar";
 import { ChatMain } from "@/components/chat-main";
 import { ChatHeader } from "@/components/chat-header";
-import { ChatMessage } from "@/lib/types";
+import { UIMessage } from "ai";
 
 export function ChatLayout({
   id,
@@ -9,7 +9,7 @@ export function ChatLayout({
   initialChatModel,
 }: {
   id: string;
-  initialMessages: ChatMessage[];
+  initialMessages: UIMessage[];
   initialChatModel: string;
 }) {
   return (

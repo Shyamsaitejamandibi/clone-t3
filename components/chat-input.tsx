@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChatMessage } from "@/lib/types";
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react";
 
 const models = [
@@ -24,11 +23,11 @@ interface ChatInputProps {
   chatId: string;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
-  status: UseChatHelpers<ChatMessage>["status"];
+  status: UseChatHelpers<UIMessage>["status"];
   stop: () => void;
   messages: Array<UIMessage>;
-  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
-  sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
+  setMessages: UseChatHelpers<UIMessage>["setMessages"];
+  sendMessage: UseChatHelpers<UIMessage>["sendMessage"];
 }
 
 export function ChatInput({

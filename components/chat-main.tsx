@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "@/components/chat-input";
 import { PreviewMessage } from "./message";
-import { Attachment, ChatMessage } from "@/lib/types";
+import { UIMessage } from "ai";
 import { redirect, useSearchParams } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
 import { fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
 import { DefaultChatTransport } from "ai";
 import { toast } from "sonner";
 import { ChatSDKError } from "@/lib/errors";
-import { useDataStream } from "./data-stream-provider";
 
 const convexSiteUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(
   /.cloud$/,
@@ -24,11 +23,9 @@ export function ChatMain({
   initialChatModel,
 }: {
   id: string;
-  initialMessages: ChatMessage[];
+  initialMessages: UIMessage[];
   initialChatModel: string;
 }) {
-  const { setDataStream } = useDataStream();
-
   const [input, setInput] = useState<string>("");
   const {
     messages,
@@ -38,7 +35,7 @@ export function ChatMain({
     stop,
     regenerate,
     resumeStream,
-  } = useChat<ChatMessage>({
+  } = useChat<UIMessage>({
     id,
     messages: initialMessages,
     experimental_throttle: 100,
@@ -58,7 +55,7 @@ export function ChatMain({
       },
     }),
     onData: (dataPart) => {
-      setDataStream((ds) => (ds ? [...ds, dataPart] : []));
+      // setDataStream((ds) => (ds ? [...ds, dataPart] : []));
     },
     onFinish: () => {},
     onError: (error) => {
@@ -94,7 +91,7 @@ export function ChatMain({
 
   // const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
-  useDataStream();
+  // useDataStream();
 
   return (
     <div className="flex flex-col h-full">

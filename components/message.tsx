@@ -8,8 +8,8 @@ import { Markdown } from "./markdown";
 import equal from "fast-deep-equal";
 import { cn, sanitizeText } from "@/lib/utils";
 // import { MessageReasoning } from "./message-reasoning";
-import type { ChatMessage } from "@/lib/types";
-import { useDataStream } from "./data-stream-provider";
+import type { UIMessage } from "ai";
+// import { useDataStream } from "./data-stream-provider";
 import { SparklesIcon } from "lucide-react";
 
 // Type narrowing is handled by TypeScript's control flow analysis
@@ -19,7 +19,7 @@ const PurePreviewMessage = ({
   message,
   isLoading,
 }: {
-  message: ChatMessage;
+  message: UIMessage;
   isLoading: boolean;
 }) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
@@ -28,7 +28,7 @@ const PurePreviewMessage = ({
     (part) => part.type === "file"
   );
 
-  useDataStream();
+  // useDataStream();
 
   return (
     <AnimatePresence>
