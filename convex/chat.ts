@@ -10,6 +10,7 @@ import { httpAction } from "./_generated/server";
 import { generateUUID } from "@/lib/utils";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
+import { registry } from "@/lib/ai/models";
 
 export const streamChat = httpAction(async (ctx, req) => {
   const data = await req.json();
@@ -21,7 +22,7 @@ export const streamChat = httpAction(async (ctx, req) => {
   const stream = createUIMessageStream({
     execute: ({ writer: dataStream }) => {
       const result = streamText({
-        model: gateway("openai/gpt-4.1-nano"),
+        model: registry.languageModel("openai:openai/gpt-4.1-nano"),
         system: `
       You are a helpful assistant that can search through the user's notes.
       Use the information from the notes to answer questions and provide insights.
@@ -56,6 +57,7 @@ export const streamChat = httpAction(async (ctx, req) => {
               type: part.type,
             }))
         ),
+        chatId,
       });
     },
     onError: () => {

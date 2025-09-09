@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "@/components/chat-input";
 import { PreviewMessage } from "./message";
 import { UIMessage } from "ai";
-import { redirect, useSearchParams } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
-import { fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import { generateUUID } from "@/lib/utils";
 import { DefaultChatTransport } from "ai";
 import { toast } from "sonner";
 import { ChatSDKError } from "@/lib/errors";
@@ -55,7 +54,7 @@ export function ChatMain({
       },
     }),
     onData: (dataPart) => {
-      // setDataStream((ds) => (ds ? [...ds, dataPart] : []));
+      console.log("Received data part:", dataPart);
     },
     onFinish: () => {},
     onError: (error) => {
@@ -65,33 +64,7 @@ export function ChatMain({
     },
   });
 
-  // const { messages, sendMessage, setMessages, status, stop } = useChat({
-  //   transport: new DefaultChatTransport({
-  //     api: `${convexSiteUrl}/chat-stream`,
-  //   }),
-  //   messages: initialMessages,
-  // });
-
-  const searchParams = useSearchParams();
-  const query = searchParams.get("query");
-
-  const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
-
-  useEffect(() => {
-    if (query && !hasAppendedQuery) {
-      sendMessage({
-        role: "user" as const,
-        parts: [{ type: "text", text: query }],
-      });
-
-      setHasAppendedQuery(true);
-      redirect("/chat/" + id);
-    }
-  }, [query, sendMessage, hasAppendedQuery, id]);
-
-  // const [attachments, setAttachments] = useState<Array<Attachment>>([]);
-
-  // useDataStream();
+  console.log("Messages in ChatMain:", messages);
 
   return (
     <div className="flex flex-col h-full">
