@@ -22,7 +22,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-// Dropdown removed in favor of hover actions
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -347,7 +347,7 @@ export function ChatSidebar() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Chat Thread</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{threadToDelete?.title}"? This
+              Are you sure you want to delete {threadToDelete?.title}? This
               action cannot be undone.
               {threadToDelete?.isBranch &&
                 " This will also delete any branches created from this thread."}
