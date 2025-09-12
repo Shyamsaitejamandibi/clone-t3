@@ -9,8 +9,12 @@ export default defineSchema({
   }).index("byClerkId", ["clerkId"]),
 
   chats: defineTable({
+    id: v.string(),
     userId: v.id("users"),
     title: v.string(),
+    pinned: v.boolean(),
+    isBranch: v.optional(v.boolean()),
+    branchOf: v.optional(v.id("chats")),
   }).index("byUserId", ["userId"]),
 
   messages: defineTable({
@@ -32,5 +36,11 @@ export default defineSchema({
         })
       )
     ),
-  }), // Add index for efficient chat-message lookup
+    response: v.optional(
+      v.object({
+        modelName: v.string(),
+        tokens: v.number(),
+      })
+    ),
+  }),
 });

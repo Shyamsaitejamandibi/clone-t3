@@ -1,5 +1,5 @@
 import { ChatHeader } from "@/components/chat-header";
-import { ChatSidebar } from "@/components/chat-sidebar";
+import { ChatSidebar } from "@/components/sidebar/chat-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SignInButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";

@@ -8,17 +8,41 @@ import {
 } from "ai";
 import { httpAction } from "./_generated/server";
 import { generateUUID } from "@/lib/utils";
-import { internal } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
+import { api, internal } from "./_generated/api";
 import { registry } from "@/lib/ai/models";
 
 export const streamChat = httpAction(async (ctx, req) => {
   const data = await req.json();
-  const { messages, chatId }: { messages: UIMessage[]; chatId: Id<"chats"> } =
-    data;
-  // console.log("Received data:", data)  ;
+  const {
+    messages,
+    id,
+    selectedChatModel,
+    userId,
+  }: {
+    messages: UIMessage[];
+    id: string;
+    selectedChatModel: string;
+    userId: string;
+  } = data;
+  console.log("Received data:", data);
+  console.log("User ID in streamChat:", userId);
+  const chatId = await ctx.runQuery(api.threads.getChatId, {
+    id,
+    userId,
+  });
+  await ctx.runMutation(internal.threads.createThread, {
+    role: "user",
+    parts: messages[messages.length - 1].parts
+      .filter((part) => part.type === "text" || part.type === "reasoning")
+      .map((part) => ({
+        type: part.type,
+        text: part.type === "text" ? part.text : part.text,
+      })),
+    chatId,
+  });
   // console.log("Received messages:", messages);
   const lastMessages = messages.slice(-10);
+  let tokens = 0;
   const stream = createUIMessageStream({
     execute: ({ writer: dataStream }) => {
       const result = streamText({
@@ -35,6 +59,9 @@ export const streamChat = httpAction(async (ctx, req) => {
         onError(error) {
           console.error("streamText error:", error);
         },
+        onStepFinish({ usage }) {
+          tokens += usage.outputTokens || 0;
+        },
       });
       result.consumeStream();
 
@@ -45,19 +72,21 @@ export const streamChat = httpAction(async (ctx, req) => {
       );
     },
     generateId: generateUUID,
-    onFinish: async ({ messages }) => {
+    onFinish: async ({ responseMessage, messages }) => {
       // Save the final message to the database or perform other actions
       await ctx.runMutation(internal.threads.createThread, {
-        role: messages[messages.length - 1].role,
-        parts: messages.flatMap((message) =>
-          message.parts
-            .filter((part) => part.type === "text" || part.type === "reasoning")
-            .map((part) => ({
-              text: part.text,
-              type: part.type,
-            }))
-        ),
+        role: responseMessage.role,
+        parts: responseMessage.parts
+          .filter((part) => part.type === "text" || part.type === "reasoning")
+          .map((part) => ({
+            type: part.type,
+            text: part.type === "text" ? part.text : part.text,
+          })),
         chatId,
+        response: {
+          modelName: selectedChatModel,
+          tokens: tokens,
+        },
       });
     },
     onError: () => {

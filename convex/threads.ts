@@ -1,5 +1,29 @@
 import { v } from "convex/values";
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
+import { generateUUID } from "@/lib/utils";
+
+export const getChatId = query({
+  args: {
+    id: v.string(),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("clerkId"), args.userId))
+      .first();
+    const chat = await ctx.db
+      .query("chats")
+      .filter((q) =>
+        q.and(q.eq(q.field("id"), args.id), q.eq(q.field("userId"), user?._id))
+      )
+      .first();
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+    return chat._id;
+  },
+});
 
 export const createThread = internalMutation({
   args: {
@@ -15,48 +39,143 @@ export const createThread = internalMutation({
         text: v.string(),
       })
     ),
+    response: v.optional(
+      v.object({
+        modelName: v.string(),
+        tokens: v.number(),
+      })
+    ),
   },
   handler: async (ctx, args) => {
-    const { role, parts, chatId } = args;
+    const { role, parts, chatId, response } = args;
     const thread = await ctx.db.insert("messages", {
       chatId,
       role,
       parts,
+      response,
     });
     return thread;
   },
 });
 
-export const getIntialMessages = query({
+export const getInitialMessages = query({
   args: {
-    chatId: v.id("chats"),
+    chatId: v.string(),
   },
   handler: async (ctx, args) => {
+    const chatId = await ctx.db
+      .query("chats")
+      .filter((q) => q.eq(q.field("id"), args.chatId))
+      .first();
     const messages = await ctx.db
       .query("messages")
-      .filter((q) => q.eq(q.field("chatId"), args.chatId))
+      .filter((q) => q.eq(q.field("chatId"), chatId?._id))
       .collect();
-    // Exclude _creationTime from the returned messages
     return messages.map(({ _creationTime, ...message }) => message);
   },
 });
 
-export const validChatID = query({
+export const userThreads = query({
   args: {
-    chatId: v.id("chats"),
-    userId: v.id("users"),
+    userId: v.string(),
   },
   handler: async (ctx, args) => {
-    const chat = await ctx.db
-      .query("chats")
-      .filter((q) => q.eq(q.field("_id"), args.chatId))
+    const userId = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("clerkId"), args.userId))
       .first();
-    if (!chat) {
-      throw new Error("Chat not found");
+    const chats = await ctx.db
+      .query("chats")
+      .filter((q) => q.eq(q.field("userId"), userId?._id))
+      .order("desc")
+      .collect();
+    return chats;
+  },
+});
+
+export const pinThread = mutation({
+  args: { threadId: v.id("chats") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.threadId, { pinned: true });
+  },
+});
+
+export const unpinThread = mutation({
+  args: { threadId: v.id("chats") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.threadId, { pinned: false });
+  },
+});
+
+export const deleteThread = mutation({
+  args: { threadId: v.id("chats") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.threadId);
+    const messages = await ctx.db
+      .query("messages")
+      .filter((q) => q.eq(q.field("chatId"), args.threadId))
+      .collect();
+    for (const message of messages) {
+      await ctx.db.delete(message._id);
     }
-    if (chat.userId !== args.userId) {
-      throw new Error("User is not authorized to access this chat");
+  },
+});
+
+export const createBranch = mutation({
+  args: {
+    parentThreadId: v.id("chats"),
+    title: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const parentThread = await ctx.db.get(args.parentThreadId);
+    if (!parentThread) throw new Error("Parent thread not found");
+
+    const id = generateUUID();
+    const branchId = await ctx.db.insert("chats", {
+      userId: parentThread.userId,
+      title: args.title,
+      pinned: false,
+      isBranch: true,
+      branchOf: args.parentThreadId,
+      id,
+    });
+
+    // Copy all messages from the parent thread to the new branch
+    const parentMessages = await ctx.db
+      .query("messages")
+      .filter((q) => q.eq(q.field("chatId"), args.parentThreadId))
+      .collect();
+
+    for (const message of parentMessages) {
+      await ctx.db.insert("messages", {
+        chatId: branchId,
+        role: message.role,
+        parts: message.parts,
+        response: message.response,
+      });
     }
-    return true;
+
+    return id;
+  },
+});
+
+export const createChat = mutation({
+  args: {
+    id: v.string(),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    console.log("Creating chat with ID:", args.id, "for userId:", args.userId);
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("clerkId"), args.userId))
+      .first();
+    const chat = await ctx.db.insert("chats", {
+      userId: user?._id!,
+      title: "New Chat",
+      pinned: false,
+      id: args.id,
+    });
+    return chat;
   },
 });

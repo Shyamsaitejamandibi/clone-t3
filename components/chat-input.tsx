@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, memo, SetStateAction, useState } from "react";
 import { Send, Paperclip, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UIMessage, UseChatHelpers } from "@ai-sdk/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const models = [
   { id: "gpt-4.1-nano", name: "GPT-4.1 Nano" },
@@ -20,7 +23,8 @@ const models = [
 ];
 
 interface ChatInputProps {
-  chatId: string;
+  id: string;
+  userId: string;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   status: UseChatHelpers<UIMessage>["status"];
@@ -30,9 +34,10 @@ interface ChatInputProps {
   sendMessage: UseChatHelpers<UIMessage>["sendMessage"];
 }
 
-export function ChatInput({
-  chatId,
+export function PureChatInput({
+  id,
   input,
+  userId,
   setInput,
   status,
   stop,
@@ -40,6 +45,11 @@ export function ChatInput({
   setMessages,
   sendMessage,
 }: ChatInputProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const createChat = useMutation(api.threads.createChat);
+  const chatId = pathname?.split("/").pop();
+  console.log("Chat ID in ChatInput:", chatId);
   const [selectedModel, setSelectedModel] = useState(models[0]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -52,6 +62,19 @@ export function ChatInput({
   const handleSubmit = async () => {
     if (!input.trim() || status === "streaming") return;
 
+    // Create the chat only if this is the first message (no existing messages)
+    if (messages.length === 0) {
+      await createChat({
+        userId,
+        id,
+      });
+      // Navigate to the chat route if we're not already there
+      const targetPath = `/chat/${id}`;
+      if (pathname !== targetPath) {
+        router.replace(targetPath);
+      }
+    }
+
     try {
       await sendMessage({
         role: "user" as const,
@@ -61,10 +84,6 @@ export function ChatInput({
     } catch (error) {
       console.error("Failed to send message:", error);
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
   };
 
   return (
@@ -81,7 +100,7 @@ export function ChatInput({
           <div className="relative mb-4">
             <Input
               value={input}
-              onChange={handleInputChange}
+              onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your message here..."
               className="min-h-[60px] !bg-transparent border-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -164,3 +183,11 @@ export function ChatInput({
     </div>
   );
 }
+
+export const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
+  if (prevProps.input !== nextProps.input) return false;
+  if (prevProps.status !== nextProps.status) return false;
+  if (prevProps.messages !== nextProps.messages) return false;
+
+  return true;
+});
