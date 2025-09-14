@@ -71,7 +71,7 @@ export function PureChatInput({
       // Navigate to the chat route if we're not already there
       const targetPath = `/chat/${id}`;
       if (pathname !== targetPath) {
-        router.replace(targetPath);
+        router.push(targetPath);
       }
     }
 

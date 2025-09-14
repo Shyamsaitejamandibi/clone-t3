@@ -7,6 +7,8 @@ import {
   GitBranch,
   Trash2,
   PinOff,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +37,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
-import { useQuery, useMutation } from "convex/react";
+import {
+  useQuery,
+  useMutation,
+  Preloaded,
+  usePreloadedQuery,
+} from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useEffect, useMemo, useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -51,7 +58,13 @@ interface ChatThread {
   pinned: boolean;
 }
 
-export function ChatSidebar() {
+export function ChatSidebar({
+  preloaded,
+}: {
+  preloaded: Preloaded<typeof api.threads.userThreads>;
+}) {
+  const chatThreads = usePreloadedQuery(preloaded);
+
   const { open } = useSidebar();
   const { userId } = useAuth();
   const pathname = usePathname();
@@ -59,10 +72,6 @@ export function ChatSidebar() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState<ChatThread | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const chatThreads = useQuery(api.threads.userThreads, {
-    userId: userId!,
-  }) as ChatThread[] | undefined;
 
   // Optimistic mutations
   const pinThread = useMutation(api.threads.pinThread).withOptimisticUpdate(
@@ -114,12 +123,33 @@ export function ChatSidebar() {
     .sort((a, b) => b._creationTime - a._creationTime);
   const unpinnedThreads = filteredThreads.filter((thread) => !thread.pinned);
 
-  const todayThreads = unpinnedThreads
-    .filter((thread) => thread._creationTime >= Date.now() - 86400000)
-    .sort((a, b) => b._creationTime - a._creationTime);
-  const olderThreads = unpinnedThreads
-    .filter((thread) => thread._creationTime < Date.now() - 86400000)
-    .sort((a, b) => b._creationTime - a._creationTime);
+  // Helper functions for date ranges
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  const getLocalMidnight = (date = new Date()) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  };
+
+  const localMidnight = useMemo(() => getLocalMidnight(), []);
+  const sevenDaysAgo = localMidnight - 6 * MS_PER_DAY;
+  const thirtyDaysAgo = localMidnight - 29 * MS_PER_DAY;
+
+  // Categorize threads
+  const todayThreads = unpinnedThreads.filter(
+    (t) => t._creationTime >= localMidnight
+  );
+  const last7DaysThreads = unpinnedThreads.filter(
+    (t) => t._creationTime < localMidnight && t._creationTime >= sevenDaysAgo
+  );
+  const last30DaysThreads = unpinnedThreads.filter(
+    (t) => t._creationTime < sevenDaysAgo && t._creationTime >= thirtyDaysAgo
+  );
+  const olderThreads = unpinnedThreads.filter(
+    (t) => t._creationTime < thirtyDaysAgo
+  );
 
   const handlePinToggle = async (thread: ChatThread) => {
     try {
@@ -166,9 +196,7 @@ export function ChatSidebar() {
       <SidebarMenuItem>
         <div className="flex items-center group">
           <SidebarMenuButton
-            className={`flex-1 justify-start text-left hover:bg-sidebar-accent rounded-lg ${
-              thread.pinned ? "bg-primary/10 border border-primary/20" : ""
-            }`}
+            className={`flex-1 justify-start text-left hover:bg-sidebar-accent rounded-lg `}
             onClick={() => router.push(`/chat/${thread.id}`)}
           >
             {showBranchIndicator && thread.isBranch && (
@@ -273,7 +301,7 @@ export function ChatSidebar() {
             <div className="space-y-1">
               {pinnedThreads.length > 0 && (
                 <>
-                  <div className="text-xs font-medium text-muted-foreground px-2 py-1 flex items-center gap-1">
+                  <div className="text-xs font-medium px-2 py-1 flex items-center gap-1 cursor-pointer hover:bg-sidebar-accent/50 rounded-md transition-colors duration-200">
                     <Pin className="w-3 h-3" />
                     Pinned
                   </div>
@@ -293,6 +321,36 @@ export function ChatSidebar() {
                     Today
                   </div>
                   {todayThreads.map((thread) => (
+                    <ThreadItem
+                      key={thread.id}
+                      thread={thread}
+                      showBranchIndicator
+                    />
+                  ))}
+                </>
+              )}
+
+              {last7DaysThreads.length > 0 && (
+                <>
+                  <div className="text-xs font-medium text-muted-foreground px-2 py-1">
+                    Last 7 Days
+                  </div>
+                  {last7DaysThreads.map((thread) => (
+                    <ThreadItem
+                      key={thread.id}
+                      thread={thread}
+                      showBranchIndicator
+                    />
+                  ))}
+                </>
+              )}
+
+              {last30DaysThreads.length > 0 && (
+                <>
+                  <div className="text-xs font-medium text-muted-foreground px-2 py-1">
+                    Last 30 Days
+                  </div>
+                  {last30DaysThreads.map((thread) => (
                     <ThreadItem
                       key={thread.id}
                       thread={thread}
