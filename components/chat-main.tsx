@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "@/components/chat-input";
-import { PreviewMessage } from "./message";
 import { UIMessage } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
 import { DefaultChatTransport } from "ai";
 import { toast } from "sonner";
 import { ChatSDKError } from "@/lib/errors";
+import { Messages } from "./messages";
 
 const convexSiteUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(
   /.cloud$/,
@@ -71,21 +71,16 @@ export function ChatMain({
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-1 h-0">
         <div className="p-16">
-          <div className="max-w-3xl mx-auto space-y-6">
-            {messages.length === 0 && (
-              <div className="text-center text-muted-foreground">
-                Start a conversation
-              </div>
-            )}
-
-            {messages.map((message, index) => (
-              <PreviewMessage
-                key={message.id}
-                message={message}
-                isLoading={false}
-              />
-            ))}
-          </div>
+          <Messages
+            chatId={id}
+            status={status}
+            messages={messages}
+            setMessages={setMessages}
+            regenerate={regenerate}
+            selectedModelId={initialChatModel}
+            input={input}
+            setInput={setInput}
+          />
         </div>
       </ScrollArea>
 

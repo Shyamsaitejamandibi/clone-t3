@@ -69,12 +69,8 @@ export function PureChatInput({
         id,
       });
       // Navigate to the chat route if we're not already there
-      const targetPath = `/chat/${id}`;
-      if (pathname !== targetPath) {
-        router.replace(targetPath);
-      }
     }
-
+    window.history.pushState({}, "", `/chat/${id}`);
     try {
       await sendMessage({
         role: "user" as const,

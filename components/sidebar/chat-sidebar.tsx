@@ -166,47 +166,45 @@ export function ChatSidebar() {
       <SidebarMenuItem>
         <div className="flex items-center group">
           <SidebarMenuButton
-            className={`flex-1 justify-start text-left hover:bg-sidebar-accent rounded-lg ${
-              thread.pinned ? "bg-primary/10 border border-primary/20" : ""
-            }`}
+            className={`flex-1 justify-start text-left hover:bg-sidebar-accent rounded-lg`}
             onClick={() => router.push(`/chat/${thread.id}`)}
           >
             {showBranchIndicator && thread.isBranch && (
               <GitBranch className="w-3 h-3 mr-1 text-muted-foreground" />
             )}
             <span className="truncate text-sm flex-1">{thread.title}</span>
-
-            <div className="flex items-center gap-1 ml-1 opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                aria-label={thread.pinned ? "Unpin thread" : "Pin thread"}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePinToggle(thread);
-                }}
-              >
-                {thread.pinned ? (
-                  <PinOff className="w-3 h-3" />
-                ) : (
-                  <Pin className="w-3 h-3" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-destructive hover:text-destructive"
-                aria-label="Delete thread"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick(thread);
-                }}
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
           </SidebarMenuButton>
+
+          <div className="flex items-center gap-1 ml-1 opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              aria-label={thread.pinned ? "Unpin thread" : "Pin thread"}
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePinToggle(thread);
+              }}
+            >
+              {thread.pinned ? (
+                <PinOff className="w-3 h-3" />
+              ) : (
+                <Pin className="w-3 h-3" />
+              )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-destructive hover:text-destructive"
+              aria-label="Delete thread"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClick(thread);
+              }}
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
         </div>
       </SidebarMenuItem>
     </SidebarMenu>
