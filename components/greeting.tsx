@@ -38,7 +38,7 @@ const suggestionsByTab: Record<TabKey, string[]> = {
     "Help me outline a sci‑fi novel set in a post‑apocalyptic world",
     "What are the key themes in cyberpunk literature?",
     "Compare the philosophies of Stoicism and Buddhism",
-    "Explain quantum entanglement like I'm five",
+    "Explain quantum entanglement like I&apos;m five",
   ],
   Code: [
     "Refactor this function for readability in TypeScript",
@@ -218,7 +218,7 @@ export const Greeting2 = ({ onSelectSuggestion }: GreetingProps) => {
         className="text-center"
       >
         <p className="text-xs text-muted-foreground">
-          Or ask me anything else — I'm here to help!
+          Or ask me anything else — I&apos;m here to help!
         </p>
       </motion.div>
     </div>
