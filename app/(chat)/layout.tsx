@@ -23,17 +23,7 @@ export default async function Layout({
   const isActive = cookieStore.get("sidebar_state")?.value === "true";
   return (
     <>
-      <SidebarProvider defaultOpen={isActive}>
-        <div className="flex h-screen w-full  relative">
-          <ChatSidebar />
-          <div className="flex-1 flex flex-col">
-            <ChatHeader />
-            <div className="flex flex-col min-w-0 h-dvh bg-background">
-              {children}
-            </div>
-          </div>
-        </div>
-      </SidebarProvider>
+      <SidebarProvider defaultOpen={isActive}>{children}</SidebarProvider>
     </>
   );
 }
