@@ -67,6 +67,7 @@ export function PureChatInput({
       await createChat({
         userId,
         id,
+        userPrompt: input,
       });
       // Navigate to the chat route if we're not already there
     }

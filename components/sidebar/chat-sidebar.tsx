@@ -166,13 +166,15 @@ export function ChatSidebar() {
       <SidebarMenuItem>
         <div className="flex items-center group">
           <SidebarMenuButton
-            className={`flex-1 justify-start text-left hover:bg-sidebar-accent rounded-lg`}
+            className={`flex-1 w-40 justify-start text-left hover:bg-sidebar-accent rounded-lg`}
             onClick={() => router.push(`/chat/${thread.id}`)}
           >
             {showBranchIndicator && thread.isBranch && (
               <GitBranch className="w-3 h-3 mr-1 text-muted-foreground" />
             )}
-            <span className="truncate text-sm flex-1">{thread.title}</span>
+            <span className="truncate overflow-hidden whitespace-nowrap text-sm flex-1">
+              {thread.title}
+            </span>
           </SidebarMenuButton>
 
           <div className="flex items-center gap-1 ml-1 opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">

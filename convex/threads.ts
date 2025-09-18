@@ -1,6 +1,9 @@
 import { v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { action, internalMutation, mutation, query } from "./_generated/server";
 import { generateUUID } from "@/lib/utils";
+import { generateText } from "ai";
+import { gateway } from "@ai-sdk/gateway";
+import { api } from "./_generated/api";
 
 export const getChatId = query({
   args: {
@@ -163,6 +166,7 @@ export const createChat = mutation({
   args: {
     id: v.string(),
     userId: v.string(),
+    userPrompt: v.string(),
   },
   handler: async (ctx, args) => {
     console.log("Creating chat with ID:", args.id, "for userId:", args.userId);
@@ -170,12 +174,56 @@ export const createChat = mutation({
       .query("users")
       .filter((q) => q.eq(q.field("clerkId"), args.userId))
       .first();
+
+    // Create chat with temporary title first
     const chat = await ctx.db.insert("chats", {
       userId: user?._id!,
-      title: "New Chat",
+      title: "New Chat", // Temporary title
       pinned: false,
       id: args.id,
     });
+
+    // Schedule the title generation (fire and forget)
+    await ctx.scheduler.runAfter(0, api.threads.generateAndUpdateTitle, {
+      chatId: chat,
+      userPrompt: args.userPrompt,
+    });
+
     return chat;
   },
 });
+
+// Action to generate title and update chat
+export const generateAndUpdateTitle = action({
+  args: {
+    chatId: v.id("chats"),
+    userPrompt: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const title = await generateTitleFromPrompt(args.userPrompt);
+
+    await ctx.runMutation(api.threads.updateChatTitle, {
+      chatId: args.chatId,
+      title: title,
+    });
+  },
+});
+
+// Mutation to update chat title
+export const updateChatTitle = mutation({
+  args: {
+    chatId: v.id("chats"),
+    title: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.chatId, { title: args.title });
+  },
+});
+
+async function generateTitleFromPrompt(prompt: string): Promise<string> {
+  const { text } = await generateText({
+    model: gateway("openai/gpt-oss-120b"),
+    prompt: `Generate a concise title (max 5 words) for the following user prompt:\n\n"${prompt}"\n\nTitle:`,
+  });
+  return text;
+}
