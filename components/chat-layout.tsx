@@ -1,10 +1,10 @@
 "use client";
 
-import { UIMessage } from "ai";
 import { ChatMain } from "./chat-main";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Suspense } from "react";
+import { ChatMessage } from "@/lib/types";
 
 export const ChatLayout = ({
   id,
@@ -21,13 +21,19 @@ export const ChatLayout = ({
   if (initialMessages === undefined) {
     return <div>Loading chat...</div>;
   }
-  const transformedMessages: UIMessage[] = initialMessages
+
+  const transformedMessages: ChatMessage[] = initialMessages
     ? initialMessages.map((msg) => ({
         id: msg._id,
         role: msg.role,
         parts: msg.parts,
+        metadata: {
+          modelId: msg.response?.modelName,
+          tokenUsage: msg.response?.tokens,
+        },
       }))
     : [];
+  console.log("Transformed Messages in ChatLayout:", transformedMessages);
   return (
     <ChatMain
       id={id}

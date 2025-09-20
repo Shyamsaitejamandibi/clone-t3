@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, memo, SetStateAction, useState } from "react";
-import { Send, Paperclip, ChevronDown } from "lucide-react";
+import { Send, Paperclip, ChevronDown, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,28 +10,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UIMessage, UseChatHelpers } from "@ai-sdk/react";
+import { UseChatHelpers } from "@ai-sdk/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-
-const models = [
-  { id: "gpt-4.1-nano", name: "GPT-4.1 Nano" },
-  { id: "gpt-4", name: "GPT-4" },
-  { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-  { id: "claude-3", name: "Claude-3" },
-];
+import { ChatMessage } from "@/lib/types";
+import ModelSelect from "./model-select";
 
 interface ChatInputProps {
   id: string;
   userId: string;
   input: string;
+  selectedModelId: string;
   setInput: Dispatch<SetStateAction<string>>;
-  status: UseChatHelpers<UIMessage>["status"];
+  status: UseChatHelpers<ChatMessage>["status"];
   stop: () => void;
-  messages: Array<UIMessage>;
-  setMessages: UseChatHelpers<UIMessage>["setMessages"];
-  sendMessage: UseChatHelpers<UIMessage>["sendMessage"];
+  messages: Array<ChatMessage>;
+  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
+  sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
 }
 
 export function PureChatInput({
@@ -39,6 +35,7 @@ export function PureChatInput({
   input,
   userId,
   setInput,
+  selectedModelId,
   status,
   stop,
   messages,
@@ -50,7 +47,6 @@ export function PureChatInput({
   const createChat = useMutation(api.threads.createChat);
   const chatId = pathname?.split("/").pop();
   console.log("Chat ID in ChatInput:", chatId);
-  const [selectedModel, setSelectedModel] = useState(models[0]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -70,8 +66,8 @@ export function PureChatInput({
         userPrompt: input,
       });
       // Navigate to the chat route if we're not already there
+      window.history.pushState({}, "", `/chat/${id}`);
     }
-    window.history.pushState({}, "", `/chat/${id}`);
     try {
       await sendMessage({
         role: "user" as const,
@@ -103,43 +99,12 @@ export function PureChatInput({
               className="min-h-[60px] !bg-transparent border-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
               disabled={status === "streaming"}
             />
-            <Button
-              type="submit"
-              size="sm"
-              disabled={!input.trim() || status === "streaming"}
-              className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 p-0 bg-primary/80 hover:bg-primary/90 disabled:opacity-30 rounded-lg backdrop-blur-sm"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
           </div>
 
           {/* Model Selector and Controls */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-3 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg backdrop-blur-sm"
-                    disabled={status === "streaming"}
-                  >
-                    {selectedModel.name}
-                    <ChevronDown className="w-3 h-3 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  {models.map((model) => (
-                    <DropdownMenuItem
-                      key={model.id}
-                      onClick={() => setSelectedModel(model)}
-                      className="cursor-pointer"
-                    >
-                      {model.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ModelSelect selectedModelId={selectedModelId} />
 
               <Button
                 type="button"
@@ -163,7 +128,7 @@ export function PureChatInput({
             </div>
 
             {/* Stop button when chat is streaming */}
-            {status === "streaming" && (
+            {status === "streaming" ? (
               <Button
                 type="button"
                 variant="ghost"
@@ -172,6 +137,15 @@ export function PureChatInput({
                 className="h-8 px-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg backdrop-blur-sm"
               >
                 Stop
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!input.trim()}
+                className="h-8 px-3  text-white rounded-lg"
+              >
+                <ArrowUp className="w-4 h-4" />
               </Button>
             )}
           </div>

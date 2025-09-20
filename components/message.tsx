@@ -8,9 +8,10 @@ import { Markdown } from "./markdown";
 import equal from "fast-deep-equal";
 import { cn, sanitizeText } from "@/lib/utils";
 // import { MessageReasoning } from "./message-reasoning";
-import type { UIMessage } from "ai";
 // import { useDataStream } from "./data-stream-provider";
 import { SparklesIcon } from "lucide-react";
+import { ChatMessage } from "@/lib/types";
+import { MessageReasoning } from "./message-reasoning";
 
 // Type narrowing is handled by TypeScript's control flow analysis
 // The AI SDK provides proper discriminated unions for tool calls
@@ -19,7 +20,7 @@ const PurePreviewMessage = ({
   message,
   isLoading,
 }: {
-  message: UIMessage;
+  message: ChatMessage;
   isLoading: boolean;
 }) => {
   const [mode, setMode] = useState<"view" | "edit">("view");
@@ -77,13 +78,13 @@ const PurePreviewMessage = ({
               const key = `message-${message.id}-part-${index}`;
 
               if (type === "reasoning" && part.text?.trim().length > 0) {
+                console.log("Rendering reasoning:", part.text);
                 return (
-                  //   <MessageReasoning
-                  //     key={key}
-                  //     isLoading={isLoading}
-                  //     reasoning={part.text}
-                  //   />
-                  <></>
+                  <MessageReasoning
+                    key={key}
+                    isLoading={isLoading}
+                    reasoning={part.text}
+                  />
                 );
               }
 
@@ -121,6 +122,14 @@ const PurePreviewMessage = ({
                 }
               }
             })}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {message.metadata?.modelId && (
+                <span>Model: {message.metadata.modelId}</span>
+              )}
+              {message.metadata?.tokenUsage && (
+                <span>• Tokens: {message.metadata.tokenUsage}</span>
+              )}
+            </div>
           </div>
         </div>
       </motion.div>

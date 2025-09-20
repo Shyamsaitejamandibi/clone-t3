@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { generateUUID } from "@/lib/utils";
-import { DEFAULT_MODEL } from "@/lib/ai/models";
 import { ChatMain } from "@/components/chat-main";
 import { auth } from "@clerk/nextjs/server";
 import { ChatLayout } from "@/components/chat-layout";
+import { DEFAULT_MODEL } from "@/lib/ai/registry";
 
 export default async function Home() {
   const id = generateUUID();

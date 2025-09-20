@@ -1,8 +1,6 @@
 import { ChatLayout } from "@/components/chat-layout";
-import { ChatMain } from "@/components/chat-main";
-import { DEFAULT_MODEL } from "@/lib/ai/models";
+import { DEFAULT_MODEL } from "@/lib/ai/registry";
 import { auth } from "@clerk/nextjs/server";
-import { UIMessage } from "ai";
 import { cookies } from "next/headers";
 
 export const ChatPage = async ({

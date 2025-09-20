@@ -3,13 +3,15 @@ import {
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  generateText,
   streamText,
   UIMessage,
 } from "ai";
 import { httpAction } from "./_generated/server";
 import { generateUUID } from "@/lib/utils";
 import { api, internal } from "./_generated/api";
-import { registry } from "@/lib/ai/models";
+import { registry } from "@/lib/ai/registry";
+import { ModelInfo } from "@/lib/ai/models";
 
 export const streamChat = httpAction(async (ctx, req) => {
   const data = await req.json();
@@ -21,7 +23,7 @@ export const streamChat = httpAction(async (ctx, req) => {
   }: {
     messages: UIMessage[];
     id: string;
-    selectedChatModel: string;
+    selectedChatModel: ModelInfo["id"];
     userId: string;
   } = data;
   console.log("Received data:", data);
@@ -46,14 +48,13 @@ export const streamChat = httpAction(async (ctx, req) => {
   const stream = createUIMessageStream({
     execute: ({ writer: dataStream }) => {
       const result = streamText({
-        model: registry.languageModel("openai:openai/gpt-4.1-nano"),
-        system: `
-      You are a helpful assistant that can search through the user's notes.
-      Use the information from the notes to answer questions and provide insights.
-      If the requested information is not available, respond with "Sorry, I can't find that information in your notes".
-      You can use markdown formatting like links, bullet points, numbered lists, and bold text.
-      Provide links to relevant notes using this relative URL structure (omit the base URL): '/notes?noteId=<note-id>'.
-      Keep your responses concise and to the point.
+        model: registry.languageModel("openai/gpt-4.1-nano"),
+        system: `You are T3 Chat, an AI assistant powered by the ${selectedChatModel}
+         model. Your role is to assist and engage in conversation while being
+         helpful, respectful, and engaging.'
+         '- If you are specifically asked about the model you are using, you may
+         mention that you use the ${selectedChatModel} model. If you are not
+         asked specifically mention it.',
       `,
         messages: convertToModelMessages(lastMessages),
         onError(error) {
@@ -72,7 +73,7 @@ export const streamChat = httpAction(async (ctx, req) => {
       );
     },
     generateId: generateUUID,
-    onFinish: async ({ responseMessage, messages }) => {
+    onFinish: async ({ responseMessage }) => {
       // Save the final message to the database or perform other actions
       await ctx.runMutation(internal.threads.createThread, {
         role: responseMessage.role,

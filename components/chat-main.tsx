@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "@/components/chat-input";
-import { UIMessage } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
 import { DefaultChatTransport } from "ai";
 import { toast } from "sonner";
 import { ChatSDKError } from "@/lib/errors";
 import { Messages } from "./messages";
+import { ChatMessage } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 const convexSiteUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(
   /.cloud$/,
@@ -24,11 +25,12 @@ export function ChatMain({
 }: {
   id: string;
   userId: string;
-  initialMessages: UIMessage[];
+  initialMessages: ChatMessage[];
   initialChatModel: string;
 }) {
   console.log("User ID in ChatMain:", userId);
   const [input, setInput] = useState<string>("");
+  const router = useRouter();
   const {
     messages,
     setMessages,
@@ -37,7 +39,7 @@ export function ChatMain({
     stop,
     regenerate,
     resumeStream,
-  } = useChat<UIMessage>({
+  } = useChat<ChatMessage>({
     id,
     messages: initialMessages,
     experimental_throttle: 100,
@@ -62,6 +64,9 @@ export function ChatMain({
       if (error instanceof ChatSDKError) {
         toast(error.message);
       }
+    },
+    onFinish: () => {
+      router.refresh();
     },
   });
 
@@ -92,6 +97,7 @@ export function ChatMain({
         status={status}
         stop={stop}
         messages={messages}
+        selectedModelId={initialChatModel}
         setMessages={setMessages}
         sendMessage={sendMessage}
       />

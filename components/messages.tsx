@@ -2,14 +2,15 @@ import { PreviewMessage, ThinkingMessage } from "./message";
 import { Greeting } from "./greeting";
 import { Dispatch, memo, SetStateAction } from "react";
 import equal from "fast-deep-equal";
-import type { UIMessage, UseChatHelpers } from "@ai-sdk/react";
+import type { UseChatHelpers } from "@ai-sdk/react";
+import { ChatMessage } from "@/lib/types";
 
 interface MessagesProps {
   chatId: string;
-  status: UseChatHelpers<UIMessage>["status"];
-  messages: UIMessage[];
-  setMessages: UseChatHelpers<UIMessage>["setMessages"];
-  regenerate: UseChatHelpers<UIMessage>["regenerate"];
+  status: UseChatHelpers<ChatMessage>["status"];
+  messages: ChatMessage[];
+  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
+  regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   selectedModelId: string;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
