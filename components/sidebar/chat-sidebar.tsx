@@ -212,8 +212,6 @@ export function ChatSidebar() {
     </SidebarMenu>
   );
 
-  console.log("Chat threads:", chatThreads);
-
   return (
     <>
       <div className="fixed top-3 left-3 z-50">

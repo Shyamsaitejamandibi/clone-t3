@@ -26,8 +26,6 @@ export const streamChat = httpAction(async (ctx, req) => {
     selectedChatModel: ModelInfo["id"];
     userId: string;
   } = data;
-  console.log("Received data:", data);
-  console.log("User ID in streamChat:", userId);
   const chatId = await ctx.runQuery(api.threads.getChatId, {
     id,
     userId,
@@ -42,7 +40,6 @@ export const streamChat = httpAction(async (ctx, req) => {
       })),
     chatId,
   });
-  // console.log("Received messages:", messages);
   const lastMessages = messages.slice(-10);
   let tokens = 0;
   const stream = createUIMessageStream({

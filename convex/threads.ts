@@ -169,7 +169,6 @@ export const createChat = mutation({
     userPrompt: v.string(),
   },
   handler: async (ctx, args) => {
-    console.log("Creating chat with ID:", args.id, "for userId:", args.userId);
     const user = await ctx.db
       .query("users")
       .filter((q) => q.eq(q.field("clerkId"), args.userId))

@@ -49,7 +49,6 @@ export async function getCurrentUserOrThrow(ctx: QueryCtx) {
 
 export async function getCurrentUser(ctx: QueryCtx) {
   const identity = await ctx.auth.getUserIdentity();
-  console.log("Identity:", identity);
   if (identity === null) {
     return null;
   }
@@ -57,7 +56,6 @@ export async function getCurrentUser(ctx: QueryCtx) {
 }
 
 async function userByClerkId(ctx: QueryCtx, clerkId: string) {
-  console.log("Fetching user by Clerk ID:", clerkId);
   return await ctx.db
     .query("users")
     .withIndex("byClerkId", (q) => q.eq("clerkId", clerkId))

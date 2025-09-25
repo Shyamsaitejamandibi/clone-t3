@@ -43,10 +43,7 @@ export function PureChatInput({
   sendMessage,
 }: ChatInputProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const createChat = useMutation(api.threads.createChat);
-  const chatId = pathname?.split("/").pop();
-  console.log("Chat ID in ChatInput:", chatId);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {

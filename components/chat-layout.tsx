@@ -33,7 +33,7 @@ export const ChatLayout = ({
         },
       }))
     : [];
-  console.log("Transformed Messages in ChatLayout:", transformedMessages);
+
   return (
     <ChatMain
       id={id}

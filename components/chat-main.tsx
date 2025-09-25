@@ -28,7 +28,6 @@ export function ChatMain({
   initialMessages: ChatMessage[];
   initialChatModel: string;
 }) {
-  console.log("User ID in ChatMain:", userId);
   const [input, setInput] = useState<string>("");
   const router = useRouter();
   const {
@@ -66,11 +65,9 @@ export function ChatMain({
       }
     },
     onFinish: () => {
-      router.refresh();
+      // router.refresh();
     },
   });
-
-  console.log("Messages in ChatMain:", messages);
 
   return (
     <div className="flex flex-col h-full">
