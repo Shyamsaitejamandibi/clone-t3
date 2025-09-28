@@ -1,15 +1,9 @@
 "use client";
 
-import { Dispatch, memo, SetStateAction, useState } from "react";
-import { Send, Paperclip, ChevronDown, ArrowUp } from "lucide-react";
+import { Dispatch, memo, SetStateAction } from "react";
+import { Paperclip, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { UseChatHelpers } from "@ai-sdk/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
@@ -22,6 +16,7 @@ interface ChatInputProps {
   userId: string;
   input: string;
   selectedModelId: string;
+  setInitialChatModel: Dispatch<SetStateAction<string>>;
   setInput: Dispatch<SetStateAction<string>>;
   status: UseChatHelpers<ChatMessage>["status"];
   stop: () => void;
@@ -35,6 +30,7 @@ export function PureChatInput({
   input,
   userId,
   setInput,
+  setInitialChatModel,
   selectedModelId,
   status,
   stop,
@@ -101,7 +97,10 @@ export function PureChatInput({
           {/* Model Selector and Controls */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <ModelSelect selectedModelId={selectedModelId} />
+              <ModelSelect
+                selectedModelId={selectedModelId}
+                setInitialChatModel={setInitialChatModel}
+              />
 
               <Button
                 type="button"
@@ -156,6 +155,9 @@ export const ChatInput = memo(PureChatInput, (prevProps, nextProps) => {
   if (prevProps.input !== nextProps.input) return false;
   if (prevProps.status !== nextProps.status) return false;
   if (prevProps.messages !== nextProps.messages) return false;
+  if (prevProps.selectedModelId !== nextProps.selectedModelId) return false;
+  if (prevProps.setInitialChatModel !== nextProps.setInitialChatModel)
+    return false;
 
   return true;
 });

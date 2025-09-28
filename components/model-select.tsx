@@ -1,4 +1,4 @@
-import React, { useState, useMemo, startTransition } from "react";
+import React, { useState, useMemo, Dispatch, SetStateAction } from "react";
 import {
   Select,
   SelectContent,
@@ -7,11 +7,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "./ui/button";
-import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { getDefaultModels } from "@/lib/ai/models";
-import { saveChatModelAsCookie } from "@/actions/model-select";
 
-const ModelSelect = ({ selectedModelId }: { selectedModelId: string }) => {
+const ModelSelect = ({
+  selectedModelId,
+  setInitialChatModel,
+}: {
+  selectedModelId: string;
+  setInitialChatModel: Dispatch<SetStateAction<string>>;
+}) => {
   const selectedModel = getDefaultModels();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -41,9 +46,8 @@ const ModelSelect = ({ selectedModelId }: { selectedModelId: string }) => {
   }, []);
 
   const handleModelSelect = (modelId: string) => {
-    startTransition(() => {
-      saveChatModelAsCookie(modelId);
-    });
+    localStorage.setItem("chat-model", modelId);
+    setInitialChatModel(modelId);
     setIsOpen(false);
   };
 

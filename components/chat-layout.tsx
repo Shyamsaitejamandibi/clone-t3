@@ -1,20 +1,24 @@
 "use client";
 
-import { ChatMain } from "./chat-main";
 import { useQuery } from "convex/react";
+import { ChatMain } from "./chat-main";
+import { useState, useEffect } from "react";
 import { api } from "@/convex/_generated/api";
-import { Suspense } from "react";
 import { ChatMessage } from "@/lib/types";
 
-export const ChatLayout = ({
-  id,
-  userId,
-  initialChatModel,
-}: {
-  id: string;
-  userId: string;
-  initialChatModel: string;
-}) => {
+export const ChatLayout = ({ id, userId }: { id: string; userId: string }) => {
+  const [initialChatModel, setInitialChatModel] = useState<string>("");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("chat-model");
+    if (stored) {
+      setInitialChatModel(stored);
+    } else {
+      localStorage.setItem("chat-model", "openai/gpt-4o");
+      setInitialChatModel("openai/gpt-4o");
+    }
+  }, []);
+
   const initialMessages = useQuery(api.threads.getInitialMessages, {
     chatId: id,
   });
@@ -34,12 +38,17 @@ export const ChatLayout = ({
       }))
     : [];
 
+  if (!initialChatModel) {
+    return <div>Loading model...</div>;
+  }
+
   return (
     <ChatMain
       id={id}
       userId={userId}
       initialMessages={transformedMessages}
       initialChatModel={initialChatModel}
+      setInitialChatModel={setInitialChatModel}
     />
   );
 };

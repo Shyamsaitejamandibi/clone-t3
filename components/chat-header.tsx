@@ -1,5 +1,6 @@
 import { Settings, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "./ui/mode-toggle";
 
 export function ChatHeader() {
   return (
@@ -11,13 +12,7 @@ export function ChatHeader() {
       >
         <Settings className="w-4 h-4" />
       </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 hover:bg-[#2C2C2C]/50 rounded-lg transition-colors duration-200 text-white"
-      >
-        <Sun className="w-4 h-4" />
-      </Button>
+      <ModeToggle />
     </div>
   );
 }

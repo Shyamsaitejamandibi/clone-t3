@@ -1,7 +1,5 @@
 import { ChatLayout } from "@/components/chat-layout";
-import { DEFAULT_MODEL } from "@/lib/ai/registry";
 import { auth } from "@clerk/nextjs/server";
-import { cookies } from "next/headers";
 
 export const ChatPage = async ({
   params,
@@ -10,17 +8,10 @@ export const ChatPage = async ({
 }) => {
   const { chatId } = await params;
   const { userId } = await auth();
-  const cookieStore = await cookies();
-  const modelIdFromCookie =
-    cookieStore.get("chat-model")?.value || DEFAULT_MODEL;
 
   return (
     <>
-      <ChatLayout
-        id={chatId}
-        userId={userId!}
-        initialChatModel={modelIdFromCookie}
-      />
+      <ChatLayout id={chatId} userId={userId!} />
     </>
   );
 };

@@ -22,11 +22,13 @@ export function ChatMain({
   id,
   initialMessages,
   initialChatModel,
+  setInitialChatModel,
 }: {
   id: string;
   userId: string;
   initialMessages: ChatMessage[];
   initialChatModel: string;
+  setInitialChatModel: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const [input, setInput] = useState<string>("");
   const router = useRouter();
@@ -48,11 +50,15 @@ export function ChatMain({
       fetch: fetchWithErrorHandlers,
       body: { userId: userId },
       prepareSendMessagesRequest({ messages, id, body }) {
+        const selectedModelToSend =
+          typeof window !== "undefined"
+            ? localStorage.getItem("chat-model") ?? initialChatModel
+            : initialChatModel;
         return {
           body: {
             id,
             messages: messages,
-            selectedChatModel: initialChatModel,
+            selectedChatModel: selectedModelToSend,
             userId,
             ...body,
           },
@@ -65,7 +71,7 @@ export function ChatMain({
       }
     },
     onFinish: () => {
-      // router.refresh();
+      router.refresh();
     },
   });
 
@@ -95,6 +101,7 @@ export function ChatMain({
         stop={stop}
         messages={messages}
         selectedModelId={initialChatModel}
+        setInitialChatModel={setInitialChatModel}
         setMessages={setMessages}
         sendMessage={sendMessage}
       />
