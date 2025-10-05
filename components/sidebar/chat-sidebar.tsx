@@ -39,6 +39,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useEffect, useMemo, useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { CommandSearch } from "./command-search";
 
 interface ChatThread {
   _id: Id<"chats">;
@@ -216,15 +217,9 @@ export function ChatSidebar() {
     <>
       <div className="fixed top-3 left-3 z-50">
         <SidebarTrigger className="h-8 w-8 hover:cursor-pointer text-white" />
-        {!open && (
-          <div className="fixed top-3 left-12 z-30 flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 hover:bg-[#2C2C2C]/50 rounded-lg transition-colors duration-200 text-white"
-            >
-              <Search className="w-4 h-4" />
-            </Button>
+        <div className="fixed top-3 left-12 z-30 flex items-center gap-2">
+          <CommandSearch userId={userId!} showButton={!open} />
+          {!open && (
             <Button
               variant="ghost"
               size="icon"
@@ -232,8 +227,8 @@ export function ChatSidebar() {
             >
               <Plus className="w-4 h-4" />
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <Sidebar className="w-64 border-r border-border bg-sidebar-accent">

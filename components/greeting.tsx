@@ -13,6 +13,7 @@ import {
   GraduationCap,
   Sparkles,
 } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 interface GreetingProps {
   onSelectSuggestion: (text: string) => void;
@@ -56,7 +57,8 @@ const suggestionsByTab: Record<TabKey, string[]> = {
 
 export const Greeting = ({ onSelectSuggestion }: GreetingProps) => {
   const [activeTab, setActiveTab] = useState<TabKey>("Create");
-
+  const { user } = useUser();
+  const fullName = user?.fullName;
   return (
     <div
       key="overview"
@@ -69,7 +71,7 @@ export const Greeting = ({ onSelectSuggestion }: GreetingProps) => {
         transition={{ delay: 0.5 }}
         className="font-semibold text-xl md:text-2xl"
       >
-        How can I help you, Shyam?
+        How can I help you, {fullName?.split(" ")[0]}?
       </motion.div>
 
       {/* Tabs */}
